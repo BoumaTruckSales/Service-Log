@@ -26,39 +26,57 @@
       flex-direction: column;
     }
 
+    /* ===== HEADER (MOBILE-FRIENDLY) ===== */
     header {
-      display: flex;
-      align-items: center;
-      padding: 10px 16px;
       background: #0f335f;
       color: #ffffff;
+      padding: 10px 16px 12px;
+    }
+
+    /* Row 1: Logo centered */
+    .header-logo-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 4px 0 8px;
     }
 
     header img.logo {
-      height: 52px;
+      height: 56px;
       width: auto;
-      margin-right: 12px;
       object-fit: contain;
     }
 
-    header .title-group {
-      flex: 1;
+    /* Row 2: Title left, lock button right */
+    .header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
     }
 
-    header h1 {
+    .header-title {
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 1.05rem;
+      line-height: 1.1;
+    }
+
+    .header-lock-btn {
+      width: auto;
       margin: 0;
-      font-size: 1.3rem;
-      letter-spacing: 0.03em;
+      padding: 6px 10px;
     }
 
-    header p {
-      margin: 2px 0 0;
-      font-size: 0.85rem;
-      opacity: 0.9;
-    }
-
-    header button {
-      margin-left: 8px;
+    @media (max-width: 600px) {
+      header img.logo {
+        height: 62px;
+      }
+      .header-title {
+        font-size: 0.95rem;
+        letter-spacing: 0.07em;
+      }
     }
 
     main {
@@ -252,6 +270,16 @@
       display: none; /* shown only when locked */
     }
 
+    /* Page title under banner */
+    .page-title {
+      padding: 6px 2px 10px;
+    }
+
+    .page-title h2 {
+      margin: 0;
+      font-size: 1.15rem;
+    }
+
     /* PIN MODAL */
     .modal-backdrop {
       position: fixed;
@@ -310,27 +338,27 @@
         background: #ffffff;
         color: #000000;
         border-bottom: 1px solid #d1d5db;
-        display: block;
-        text-align: center;
         padding-bottom: 12px;
+      }
+
+      .header-logo-row {
+        padding-bottom: 6px;
       }
 
       header img.logo {
         height: 50px;
-        margin: 0 auto 4px auto;
+        margin: 0 auto;
         display: block;
       }
 
-      header .title-group {
+      .header-bar {
+        display: block;
         text-align: center;
       }
 
-      header h1 {
-        font-size: 1.4rem;
-      }
-
-      header p {
-        font-size: 0.9rem;
+      .header-title {
+        font-size: 1.2rem;
+        letter-spacing: 0.06em;
       }
 
       .no-print {
@@ -378,21 +406,30 @@
 <body>
   <div class="page">
     <header>
-      <img src="bouma logo.jpg" alt="Bouma Truck Sales" class="logo" />
-      <div class="title-group">
-        <h1>Bouma Truck Sales</h1>
-        <p id="header-unit-line">Service History</p>
+      <div class="header-logo-row">
+        <img src="bouma logo.jpg" alt="Bouma Truck Sales" class="logo" />
       </div>
-      <div class="no-print">
-        <button id="unlock-btn" class="btn-secondary btn-small" type="button">
-          Unlock Editing
-        </button>
+
+      <div class="header-bar">
+        <div class="header-title">BOUMA TRUCK SALES</div>
+
+        <div class="no-print">
+          <button id="unlock-btn" class="btn-secondary btn-small header-lock-btn" type="button">
+            Unlock Editing
+          </button>
+        </div>
       </div>
     </header>
 
     <main>
       <div id="readonly-banner" class="readonly-banner no-print">
         🔒 This is a read-only customer view. Service history cannot be edited.
+      </div>
+
+      <!-- Service history moved OUT of the header -->
+      <div class="page-title">
+        <h2>Service History</h2>
+        <p id="header-unit-line" class="small-text"></p>
       </div>
 
       <div class="top-actions no-print">
@@ -878,7 +915,6 @@
       document.getElementById("unit-serial").value = unit.serial || "";
 
       const lineEl = document.getElementById("header-unit-line");
-      let line = "Service History";
       const parts = [];
 
       if (unit.unitId) parts.push(unit.unitId);
@@ -886,10 +922,7 @@
       if (ymms) parts.push(ymms);
       if (unit.serial) parts.push("#" + unit.serial);
 
-      if (parts.length) {
-        line += " – " + parts.join(" | ");
-      }
-      lineEl.textContent = line;
+      lineEl.textContent = parts.join(" | ");
     }
 
     function renderServiceHistory(key) {
@@ -1005,16 +1038,13 @@
       ensureDefaults();
 
       try {
-        // Load unit row (if it exists)
         const { data: unitRow, error: unitError } = await supabaseClient
           .from("units")
           .select("*")
           .eq("unit_slug", UNIT_SLUG)
           .maybeSingle();
 
-        if (unitError) {
-          console.error("Error loading unit from Supabase", unitError);
-        }
+        if (unitError) console.error("Error loading unit from Supabase", unitError);
 
         if (unitRow) {
           state.unit.unitId = unitRow.unit_id || UNIT_SLUG;
@@ -1024,11 +1054,9 @@
           state.unit.serial = unitRow.serial || "";
           state.lastUpdated = unitRow.last_updated || null;
         } else {
-          // No row yet: use slug as default visible ID
           state.unit.unitId = UNIT_SLUG;
         }
 
-        // Load service records
         const { data: records, error: recError } = await supabaseClient
           .from("service_records")
           .select("*")
@@ -1047,7 +1075,6 @@
             });
           });
         }
-
       } catch (err) {
         console.error("Unexpected Supabase error", err);
       }
@@ -1058,7 +1085,6 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-      // Unit form
       const unitForm = document.getElementById("unit-form");
       unitForm.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -1099,7 +1125,6 @@
         }
       });
 
-      // Service sections: hook up forms and history divs
       document.querySelectorAll(".service-section").forEach(section => {
         const key = section.dataset.key;
         const form = section.querySelector(".service-form");
@@ -1113,6 +1138,7 @@
               alert("Unlock editing with the admin PIN to add service records.");
               return;
             }
+
             const dateInput = form.querySelector(".service-date");
             const odoInput = form.querySelector(".service-odo");
             const notesInput = form.querySelector(".service-notes");
@@ -1154,15 +1180,12 @@
             touchLastUpdated();
             renderLastUpdated();
 
-            // Try to update last_updated on the unit (it's ok if unit row doesn't exist yet)
             const { error: unitUpdateError } = await supabaseClient
               .from("units")
               .update({ last_updated: state.lastUpdated })
               .eq("unit_slug", UNIT_SLUG);
 
-            if (unitUpdateError) {
-              console.error("Error updating unit last_updated", unitUpdateError);
-            }
+            if (unitUpdateError) console.error("Error updating unit last_updated", unitUpdateError);
 
             dateInput.value = "";
             odoInput.value = "";
@@ -1175,44 +1198,28 @@
         renderServiceHistory(key);
       });
 
-      // Lock/unlock button
       document.getElementById("unlock-btn").addEventListener("click", () => {
-        if (isLocked) {
-          openPinModal();
-        } else {
+        if (isLocked) openPinModal();
+        else {
           isLocked = true;
           updateLockState();
         }
       });
 
-      // PIN modal events
       const pinCancel = document.getElementById("pin-cancel");
       const pinSubmit = document.getElementById("pin-submit");
       const pinInput = document.getElementById("pin-input");
 
-      if (pinCancel) {
-        pinCancel.addEventListener("click", () => {
-          closePinModal();
-        });
-      }
-      if (pinSubmit) {
-        pinSubmit.addEventListener("click", () => {
-          submitPin();
-        });
-      }
+      if (pinCancel) pinCancel.addEventListener("click", closePinModal);
+      if (pinSubmit) pinSubmit.addEventListener("click", submitPin);
+
       if (pinInput) {
         pinInput.addEventListener("keydown", (e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            submitPin();
-          } else if (e.key === "Escape") {
-            e.preventDefault();
-            closePinModal();
-          }
+          if (e.key === "Enter") { e.preventDefault(); submitPin(); }
+          else if (e.key === "Escape") { e.preventDefault(); closePinModal(); }
         });
       }
 
-      // Close modal with Esc globally
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape" && pinModalOpen) {
           e.preventDefault();
@@ -1220,21 +1227,16 @@
         }
       });
 
-      // Print
       document.getElementById("print-btn").addEventListener("click", () => {
         window.print();
       });
 
-      // Default dates
       const today = new Date().toISOString().slice(0, 10);
       document.querySelectorAll(".service-date").forEach(input => {
         if (!input.value) input.value = today;
       });
 
-      // Start locked
       updateLockState();
-
-      // Finally: load data from Supabase
       loadFromSupabase();
     });
   </script>
