@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bouma Truck Sales - Service History</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0f335f; /* Bouma blue feel */
+      color: #111827;
+    }
+
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+      background: #f9fafb;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      padding: 10px 16px;
+      background: #0f335f;
+      color: #ffffff;
+    }
+
+    header img.logo {
+      height: 52px;
+      width: auto;
+      margin-right: 12px;
+      object-fit: contain;
+    }
+
+    header .title-group {
+      flex: 1;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.3rem;
+      letter-spacing: 0.03em;
+    }
+
+    header p {
+      margin: 2px 0 0;
+      font-size: 0.85rem;
+      opacity: 0.9;
+    }
+
+    header button {
+      margin-left: 8px;
+    }
+
+    main {
+      padding: 12px 12px 40px;
+      flex: 1;
+    }
+
+    h2 {
+      font-size: 1.05rem;
+      margin: 0 0 8px;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      border: 1px solid transparent;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      margin-bottom: 4px;
+    }
+
+    input, textarea, button {
+      width: 100%;
+      font-size: 0.95rem;
+      padding: 7px 9px;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      margin-bottom: 8px;
+    }
+
+    input[readonly] {
+      background: #f3f4f6;
+    }
+
+    textarea {
+      min-height: 60px;
+      resize: vertical;
+    }
+
+    button {
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: #ffffff;
+    }
+
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .btn-small {
+      font-size: 0.8rem;
+      padding: 5px 8px;
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .row > * {
+      flex: 1;
+    }
+
+    .small-text {
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+
+    .service-section {
+      margin-bottom: 14px;
+      padding-top: 8px;
+      border-top: 1px solid #e5e7eb;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .service-header-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .service-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .service-history {
+      margin-top: 4px;
+      font-size: 0.8rem;
+      color: #374151;
+      overflow-x: auto;
+    }
+
+    .service-history table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+
+    .service-history th,
+    .service-history td {
+      border: 1px solid #e5e7eb;
+      padding: 4px 6px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .service-history th {
+      background: #f3f4f6;
+      font-weight: 600;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      font-size: 0.7rem;
+      margin-left: 6px;
+    }
+
+    .top-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 10px 12px 16px;
+      font-size: 0.85rem;
+      background: #0f335f;
+      color: #ffffff;
+    }
+
+    .no-print {}
+
+    .print-only {
+      display: none;
+    }
+
+    .signature-block {
+      margin-top: 16px;
+      font-size: 0.85rem;
+    }
+
+    .signature-line {
+      margin-top: 8px;
+      display: flex;
+      gap: 16px;
+    }
+
+    .signature-line div {
+      flex: 1;
+    }
+
+    .signature-label {
+      border-top: 1px solid #000000;
+      padding-top: 4px;
+      text-align: center;
+    }
+
+    /* read-only customer banner */
+    .readonly-banner {
+      background: #fde047; /* yellow */
+      color: #000;
+      padding: 10px 14px;
+      border-left: 4px solid #facc15;
+      border-right: 4px solid #facc15;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-align: center;
+      display: none; /* shown only when locked */
+    }
+
+    /* PIN MODAL */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: none; /* flex when visible */
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 1000;
+    }
+
+    .modal {
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 16px 18px 14px;
+      max-width: 320px;
+      width: 100%;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+    }
+
+    .modal h3 {
+      margin: 0 0 4px;
+      font-size: 1rem;
+    }
+
+    .modal p {
+      margin: 2px 0 8px;
+      font-size: 0.85rem;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .pin-error {
+      color: #b91c1c;
+      margin-top: 6px;
+    }
+
+    /* PRINT STYLES */
+    @media print {
+      body {
+        background: #ffffff;
+      }
+
+      .page {
+        box-shadow: none;
+        max-width: 100%;
+      }
+
+      header {
+        background: #ffffff;
+        color: #000000;
+        border-bottom: 1px solid #d1d5db;
+        display: block;
+        text-align: center;
+        padding-bottom: 12px;
+      }
+
+      header img.logo {
+        height: 50px;
+        margin: 0 auto 4px auto;
+        display: block;
+      }
+
+      header .title-group {
+        text-align: center;
+      }
+
+      header h1 {
+        font-size: 1.4rem;
+      }
+
+      header p {
+        font-size: 0.9rem;
+      }
+
+      .no-print {
+        display: none !important;
+      }
+
+      main {
+        padding: 10px 16px 10px;
+      }
+
+      .card {
+        box-shadow: none;
+        border-color: #d1d5db;
+        margin-bottom: 10px;
+      }
+
+      h2 {
+        border-bottom: 1px solid #d1d5db;
+        padding-bottom: 4px;
+        margin-bottom: 6px;
+      }
+
+      textarea {
+        border: none;
+      }
+
+      footer {
+        background: #ffffff;
+        color: #000000;
+        border-top: 1px solid #d1d5db;
+        margin-top: 10px;
+      }
+
+      .print-only {
+        display: block;
+      }
+
+      .service-section {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <img src="bouma logo.jpg" alt="Bouma Truck Sales" class="logo" />
+      <div class="title-group">
+        <h1>Bouma Truck Sales</h1>
+        <p id="header-unit-line">Service History</p>
+      </div>
+      <div class="no-print">
+        <button id="unlock-btn" class="btn-secondary btn-small" type="button">
+          Unlock Editing
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <div id="readonly-banner" class="readonly-banner no-print">
+        🔒 This is a read-only customer view. Service history cannot be edited.
+      </div>
+
+      <div class="top-actions no-print">
+        <button id="print-btn" class="btn-secondary btn-small" type="button">
+          Print Service History
+        </button>
+      </div>
+
+      <!-- UNIT INFO -->
+      <section class="card">
+        <h2>Unit Information</h2>
+        <p class="small-text">
+          Unit ID, year, make, model &amp; serial/VIN for this specific truck, trailer, or equipment.
+        </p>
+        <p id="last-updated" class="small-text"></p>
+
+        <form id="unit-form">
+          <label for="unit-id-field">Unit ID / Stock #</label>
+          <input id="unit-id-field" class="lockable" type="text"
+                 placeholder="e.g. Truck 213, Trailer 54, Stock #BTS-1045" />
+
+          <div class="row">
+            <div>
+              <label for="unit-year">Year</label>
+              <input id="unit-year" class="lockable" type="number" min="1900" max="2100" placeholder="2020" />
+            </div>
+            <div>
+              <label for="unit-serial">Serial / VIN #</label>
+              <input id="unit-serial" class="lockable" type="text" placeholder="Serial / VIN #" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <label for="unit-make">Make</label>
+              <input id="unit-make" class="lockable" type="text" placeholder="Make" />
+            </div>
+            <div>
+              <label for="unit-model">Model</label>
+              <input id="unit-model" class="lockable" type="text" placeholder="Model" />
+            </div>
+          </div>
+
+          <button class="btn-primary lockable no-print" type="submit">
+            Save Unit Information
+          </button>
+        </form>
+      </section>
+
+      <!-- SERVICE SECTIONS -->
+      <section class="card">
+        <h2>Service Log</h2>
+        <p class="small-text">
+          Enter the date, mileage/hours, and any notes when each item is serviced. History is saved and printable.
+        </p>
+
+        <!-- Oil Change -->
+        <div class="service-section" data-key="oilChange">
+          <div class="service-header-line">
+            <span class="service-title">Oil Change</span>
+            <span class="badge">Engine / Crankcase</span>
+          </div>
+          <form class="service-form no-print">
+            <div class="row">
+              <div>
+                <label>Date</label>
+                <input type="date" class="service-date lockable" />
+              </div>
+              <div>
+                <label>Mileage / Hours</label>
+                <input type="number" min="0" class="service-odo lockable" placeholder="e.g. 450000" />
+              </div>
+            </div>
+            <label>Notes</label>
+            <textarea class="service-notes lockable" placeholder="Brand/weight of oil, filter info, etc."></textarea>
+            <button type="submit" class="btn-primary lockable btn-small">Add Oil Change Record</button>
+          </form>
+          <div class="service-history"></div>
+        </div>
+
+        <!-- Fluids -->
+        <div class="service-section" data-key="fluids">
+          <div class="service-header-line">
+            <span class="service-title">Fluids (General)</span>
+          </div>
+          <form class="service-form no-print">
+            <div class="row">
+              <div>
+                <label>Date</label>
+                <input type="date" class="service-date lockable" />
+              </div>
+              <div>
+                <label>Mileage / Hours</label>
+                <input type="number" min="0" class="service-odo lockable" />
+              </div>
+            </div>
+            <label>Notes</label>
+            <textarea class="service-notes lockable" placeholder="Coolant, power steering, washer fluid, etc."></textarea>
+            <button type="submit" class="btn-primary lockable btn-small">Add Fluids Record</button>
+          </form>
+          <div class="service-history"></div>
+        </div>
+
+        <!-- Brakes -->
+        <div class="service-section" data-key="brakes">
+          <div class="service-header-line">
+            <span class="service-title">Brakes</span>
+          </div>
+          <form class="service-form no-print">
+            <div class="row">
+              <div>
+                <label>Date</label>
+                <input type="date" class="service-date lockable" />
+              </div>
+              <div>
+                <label>Mileage / Hours</label>
+                <input type="number" min="0" class="service-odo lockable" />
+              </div>
+            </div>
+            <label>Notes</label>
+            <textarea class="service-notes lockable" placeholder="Pads/shoes, drums/rotors, chambers, etc."></textarea>
+            <button type="submit" class="btn-primary lockable btn-small">Add Brakes Record</button>
+          </form>
+          <div class="service-history"></div>
+        </div>
+
+        <!-- Filters -->
+        <div class="service-section" data-key="filters">
+          <div class="service-header-line">
+            <span class="service-title">Filters</span>
+          </div>
+          <form class="service-form no-print">
+            <div class="row">
+              <div>
+                <label>Date</label>
+                <input type="date" class="service-date lockable" />
+              </div>
+              <div>
+                <label>Mileage / Hours</label>
+                <input type="number" min="0" class="service-odo lockable" />
+              </div>
+            </div>
+            <label>Notes</label>
+            <textarea class="service-notes lockable" placeholder="Fuel, air, cabin filters, etc."></textarea>
+            <button type="submit" class="btn-primary lockable btn-small">Add Filters Record</button>
+          </form>
+          <div class="service-history"></div>
+        </div>
+
+        <!-- Hydraulic Fluids -->
+        <div class="service-section" data-key="hydraulicFluids">
+          <div class="service-header-line">
+            <span class="service-title">Hydraulic Fluids</span>
+          </div>
+          <form class="service-form no-print">
+            <div class="row">
+              <div>
+                <label>Date</label>
+                <input type="date" class="service-date lockable" />
+              </div>
+              <div>
+                <label>Hours / Mileage</label>
+                <input type="number" min="0" class="service-odo lockable" />
+              </div>
+            </div>
+            <label>Notes</label>
+            <textarea class="service-notes lockable" placeholder="Reservoir level, leaks repaired, components serviced, etc."></textarea>
+            <button type="submit" class="btn-primary lockable btn-small">Add Hydraulic Record</button>
+          </form>
+          <div class="service-history"></div>
+        </div>
+
+        <!-- Transmission Service -->
+        <div class="service-section" data-key="transmissionService">
+          <div class="service-header-line">
+            <span class="service-title">Transmission Service</span>
+          </div>
+          <form class="service-form no-print">
+            <div class="row">
+              <div>
+                <label>Date</label>
+                <input type="date" class="service-date lockable" />
+              </div>
+              <div>
+                <label>Mileage / Hours</label>
+                <input type="number" min="0" class="service-odo lockable" />
+              </div>
+            </div>
+            <label>Notes</label>
+            <textarea class="service-notes lockable" placeholder="Fluid change, filters, clutch adjustment, etc."></textarea>
+            <button type="submit" class="btn-primary lockable btn-small">Add Transmission Record</button>
+          </form>
+          <div class="service-history"></div>
+        </div>
+
+        <!-- Engine Service -->
+        <div class="service-section" data-key="engineService">
+          <div class="service-header-line">
+            <span class="service-title">Engine Service</span>
+          </div>
+          <form class="service-form no-print">
+            <div class="row">
+              <div>
+                <label>Date</label>
+                <input type="date" class="service-date lockable" />
+              </div>
+              <div>
+                <label>Mileage / Hours</label>
+                <input type="number" min="0" class="service-odo lockable" />
+              </div>
+            </div>
+            <label>Notes</label>
+            <textarea class="service-notes lockable" placeholder="Overhead set, injectors, sensors, EGR/DPF work, etc."></textarea>
+            <button type="submit" class="btn-primary lockable btn-small">Add Engine Service Record</button>
+          </form>
+          <div class="service-history"></div>
+        </div>
+
+        <!-- Tires -->
+        <div class="service-section" data-key="tiresChecked">
+          <div class="service-header-line">
+            <span class="service-title">Tires Checked / Serviced</span>
+          </div>
+          <form class="service-form no-print">
+            <div class="row">
+              <div>
+                <label>Date</label>
+                <input type="date" class="service-date lockable" />
+              </div>
+              <div>
+                <label>Mileage / Hours</label>
+                <input type="number" min="0" class="service-odo lockable" />
+              </div>
+            </div>
+            <label>Notes</label>
+            <textarea class="service-notes lockable" placeholder="Tread depth, rotations, replacements, repairs, etc."></textarea>
+            <button type="submit" class="btn-primary lockable btn-small">Add Tires Record</button>
+          </form>
+          <div class="service-history"></div>
+        </div>
+
+        <!-- DOT -->
+        <div class="service-section" data-key="dotInspection">
+          <div class="service-header-line">
+            <span class="service-title">DOT Inspection</span>
+          </div>
+          <form class="service-form no-print">
+            <div class="row">
+              <div>
+                <label>Date</label>
+                <input type="date" class="service-date lockable" />
+              </div>
+              <div>
+                <label>Mileage / Hours</label>
+                <input type="number" min="0" class="service-odo lockable" />
+              </div>
+            </div>
+            <label>Notes</label>
+            <textarea class="service-notes lockable" placeholder="Annual inspection details, defects corrected, etc."></textarea>
+            <button type="submit" class="btn-primary lockable btn-small">Add DOT Record</button>
+          </form>
+          <div class="service-history"></div>
+        </div>
+
+        <!-- Tarp -->
+        <div class="service-section" data-key="tarp">
+          <div class="service-header-line">
+            <span class="service-title">Tarp</span>
+          </div>
+          <form class="service-form no-print">
+            <div class="row">
+              <div>
+                <label>Date</label>
+                <input type="date" class="service-date lockable" />
+              </div>
+              <div>
+                <label>Mileage / Hours</label>
+                <input type="number" min="0" class="service-odo lockable" />
+              </div>
+            </div>
+            <label>Notes</label>
+            <textarea class="service-notes lockable" placeholder="Repairs, replacements, straps, bows, etc."></textarea>
+            <button type="submit" class="btn-primary lockable btn-small">Add Tarp Record</button>
+          </form>
+          <div class="service-history"></div>
+        </div>
+
+        <!-- Lights -->
+        <div class="service-section" data-key="lights">
+          <div class="service-header-line">
+            <span class="service-title">Lights</span>
+          </div>
+          <form class="service-form no-print">
+            <div class="row">
+              <div>
+                <label>Date</label>
+                <input type="date" class="service-date lockable" />
+              </div>
+              <div>
+                <label>Mileage / Hours</label>
+                <input type="number" min="0" class="service-odo lockable" />
+              </div>
+            </div>
+            <label>Notes</label>
+            <textarea class="service-notes lockable" placeholder="Headlights, markers, turn signals, wiring repairs, etc."></textarea>
+            <button type="submit" class="btn-primary lockable btn-small">Add Lights Record</button>
+          </form>
+          <div class="service-history"></div>
+        </div>
+
+        <!-- Air Lines -->
+        <div class="service-section" data-key="airLines">
+          <div class="service-header-line">
+            <span class="service-title">Air Lines</span>
+          </div>
+          <form class="service-form no-print">
+            <div class="row">
+              <div>
+                <label>Date</label>
+                <input type="date" class="service-date lockable" />
+              </div>
+              <div>
+                <label>Mileage / Hours</label>
+                <input type="number" min="0" class="service-odo lockable" />
+              </div>
+            </div>
+            <label>Notes</label>
+            <textarea class="service-notes lockable" placeholder="Leaks repaired, hoses replaced, glad-hands, etc."></textarea>
+            <button type="submit" class="btn-primary lockable btn-small">Add Air Lines Record</button>
+          </form>
+          <div class="service-history"></div>
+        </div>
+
+        <!-- Misc -->
+        <div class="service-section" data-key="misc">
+          <div class="service-header-line">
+            <span class="service-title">Miscellaneous</span>
+          </div>
+          <form class="service-form no-print">
+            <div class="row">
+              <div>
+                <label>Date</label>
+                <input type="date" class="service-date lockable" />
+              </div>
+              <div>
+                <label>Mileage / Hours</label>
+                <input type="number" min="0" class="service-odo lockable" />
+              </div>
+            </div>
+            <label>Notes</label>
+            <textarea class="service-notes lockable" placeholder="Anything not covered above."></textarea>
+            <button type="submit" class="btn-primary lockable btn-small">Add Misc Record</button>
+          </form>
+          <div class="service-history"></div>
+        </div>
+
+        <div class="signature-block print-only">
+          <div class="signature-line">
+            <div>
+              <div class="signature-label">Technician Signature</div>
+            </div>
+            <div>
+              <div class="signature-label">Date</div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </main>
+
+    <footer>
+      Phone: 406-771-8200&nbsp; | &nbsp;3500 Vaughn Road, Great Falls, MT 59404
+    </footer>
+  </div>
+
+  <!-- PIN MODAL -->
+  <div id="pin-modal-backdrop" class="modal-backdrop no-print">
+    <div class="modal">
+      <h3>Admin PIN Required</h3>
+      <p class="small-text">Enter the Bouma admin PIN to unlock editing.</p>
+      <input id="pin-input" type="password" inputmode="numeric" autocomplete="off" placeholder="Enter PIN" />
+      <div class="modal-actions">
+        <button type="button" id="pin-cancel" class="btn-secondary btn-small">Cancel</button>
+        <button type="button" id="pin-submit" class="btn-primary btn-small">Unlock</button>
+      </div>
+      <p id="pin-error" class="pin-error small-text" style="display:none;"></p>
+    </div>
+  </div>
+
+  <!-- Supabase JS (global `supabase` object) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    // ========= SUPABASE CONFIG =========
+    const SUPABASE_URL = "https://iqsjmvswoltqommnasth.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlxc2ptdnN3b2x0cW9tbW5hc3RoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgxNTQ5OTIsImV4cCI6MjA4MzczMDk5Mn0.bX3WnHAbI9vFF_4u4HVsrONthdXu05wk_-aSCjKiEt8";
+
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Unit slug from URL (?unit=TRUCK123). Default to 'demo-unit' if not provided.
+    const urlParams = new URLSearchParams(window.location.search);
+    const UNIT_SLUG = urlParams.get("unit") || "demo-unit";
+
+    const ADMIN_PIN = "0028177604";
+
+    const SERVICE_KEYS = [
+      "oilChange",
+      "fluids",
+      "brakes",
+      "filters",
+      "hydraulicFluids",
+      "transmissionService",
+      "engineService",
+      "tiresChecked",
+      "dotInspection",
+      "tarp",
+      "lights",
+      "airLines",
+      "misc"
+    ];
+
+    let state = {
+      unit: {
+        unitId: "",
+        year: "",
+        make: "",
+        model: "",
+        serial: ""
+      },
+      services: {},
+      lastUpdated: null
+    };
+
+    let isLocked = true;
+    let pinModalOpen = false;
+    const serviceSections = {}; // key -> {form, historyDiv}
+
+    function ensureDefaults() {
+      if (!state.unit) {
+        state.unit = { unitId: "", year: "", make: "", model: "", serial: "" };
+      }
+      if (!state.services) {
+        state.services = {};
+      }
+      SERVICE_KEYS.forEach(key => {
+        if (!Array.isArray(state.services[key])) {
+          state.services[key] = [];
+        }
+      });
+      if (state.lastUpdated === undefined) {
+        state.lastUpdated = null;
+      }
+    }
+
+    function touchLastUpdated() {
+      state.lastUpdated = new Date().toISOString();
+    }
+
+    function renderLastUpdated() {
+      const el = document.getElementById("last-updated");
+      if (!el) return;
+
+      if (!state.lastUpdated) {
+        el.textContent = "Last updated: (no records yet)";
+        return;
+      }
+
+      const dt = new Date(state.lastUpdated);
+      if (isNaN(dt.getTime())) {
+        el.textContent = "Last updated: (unknown)";
+        return;
+      }
+
+      el.textContent = "Last updated: " + dt.toLocaleString();
+    }
+
+    function renderUnit() {
+      const unit = state.unit;
+      document.getElementById("unit-id-field").value = unit.unitId || "";
+      document.getElementById("unit-year").value = unit.year || "";
+      document.getElementById("unit-make").value = unit.make || "";
+      document.getElementById("unit-model").value = unit.model || "";
+      document.getElementById("unit-serial").value = unit.serial || "";
+
+      const lineEl = document.getElementById("header-unit-line");
+      let line = "Service History";
+      const parts = [];
+
+      if (unit.unitId) parts.push(unit.unitId);
+      const ymms = [unit.year, unit.make, unit.model].filter(Boolean).join(" ");
+      if (ymms) parts.push(ymms);
+      if (unit.serial) parts.push("#" + unit.serial);
+
+      if (parts.length) {
+        line += " – " + parts.join(" | ");
+      }
+      lineEl.textContent = line;
+    }
+
+    function renderServiceHistory(key) {
+      const section = serviceSections[key];
+      if (!section) return;
+      const historyDiv = section.historyDiv;
+      const records = state.services[key] || [];
+
+      if (!records.length) {
+        historyDiv.textContent = "No records yet.";
+        return;
+      }
+
+      const sorted = [...records].sort((a, b) => {
+        if (!a.date && !b.date) return 0;
+        if (!a.date) return 1;
+        if (!b.date) return -1;
+        return b.date.localeCompare(a.date);
+      });
+
+      const table = document.createElement("table");
+      const thead = document.createElement("thead");
+      thead.innerHTML = "<tr><th>Date</th><th>Mileage / Hours</th><th>Notes</th></tr>";
+      table.appendChild(thead);
+
+      const tbody = document.createElement("tbody");
+      sorted.forEach(rec => {
+        const tr = document.createElement("tr");
+        const milesText =
+          rec.odo !== null && rec.odo !== undefined && rec.odo !== ""
+            ? Number(rec.odo).toLocaleString()
+            : "";
+        tr.innerHTML =
+          "<td>" + (rec.date || "") + "</td>" +
+          "<td>" + milesText + "</td>" +
+          "<td>" + (rec.notes || "") + "</td>";
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+      historyDiv.innerHTML = "";
+      historyDiv.appendChild(table);
+    }
+
+    function updateLockState() {
+      const lockables = document.querySelectorAll(".lockable");
+      lockables.forEach(el => {
+        if (el.tagName === "BUTTON") {
+          el.disabled = isLocked;
+        } else if (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT") {
+          if (isLocked) {
+            el.setAttribute("readonly", "readonly");
+          } else {
+            el.removeAttribute("readonly");
+          }
+        }
+      });
+
+      const unlockBtn = document.getElementById("unlock-btn");
+      unlockBtn.textContent = isLocked ? "Unlock Editing" : "Lock Editing";
+
+      const banner = document.getElementById("readonly-banner");
+      if (banner) {
+        banner.style.display = isLocked ? "block" : "none";
+      }
+    }
+
+    // PIN modal helpers
+    function openPinModal() {
+      const backdrop = document.getElementById("pin-modal-backdrop");
+      const input = document.getElementById("pin-input");
+      const error = document.getElementById("pin-error");
+      if (!backdrop || !input || !error) return;
+      backdrop.style.display = "flex";
+      pinModalOpen = true;
+      error.style.display = "none";
+      error.textContent = "";
+      input.value = "";
+      setTimeout(() => input.focus(), 0);
+    }
+
+    function closePinModal() {
+      const backdrop = document.getElementById("pin-modal-backdrop");
+      if (backdrop) backdrop.style.display = "none";
+      pinModalOpen = false;
+    }
+
+    function submitPin() {
+      const input = document.getElementById("pin-input");
+      const error = document.getElementById("pin-error");
+      if (!input || !error) return;
+      const value = input.value.trim();
+
+      if (!value) {
+        error.textContent = "Please enter your PIN.";
+        error.style.display = "block";
+        return;
+      }
+
+      if (value === ADMIN_PIN) {
+        isLocked = false;
+        closePinModal();
+        updateLockState();
+      } else {
+        error.textContent = "Incorrect PIN. Please try again.";
+        error.style.display = "block";
+        input.select();
+      }
+    }
+
+    // Load unit + records from Supabase
+    async function loadFromSupabase() {
+      ensureDefaults();
+
+      try {
+        // Load unit row (if it exists)
+        const { data: unitRow, error: unitError } = await supabaseClient
+          .from("units")
+          .select("*")
+          .eq("unit_slug", UNIT_SLUG)
+          .maybeSingle();
+
+        if (unitError) {
+          console.error("Error loading unit from Supabase", unitError);
+        }
+
+        if (unitRow) {
+          state.unit.unitId = unitRow.unit_id || UNIT_SLUG;
+          state.unit.year = unitRow.year || "";
+          state.unit.make = unitRow.make || "";
+          state.unit.model = unitRow.model || "";
+          state.unit.serial = unitRow.serial || "";
+          state.lastUpdated = unitRow.last_updated || null;
+        } else {
+          // No row yet: use slug as default visible ID
+          state.unit.unitId = UNIT_SLUG;
+        }
+
+        // Load service records
+        const { data: records, error: recError } = await supabaseClient
+          .from("service_records")
+          .select("*")
+          .eq("unit_slug", UNIT_SLUG);
+
+        if (recError) {
+          console.error("Error loading service records", recError);
+        } else if (records) {
+          SERVICE_KEYS.forEach(key => { state.services[key] = []; });
+          records.forEach(r => {
+            if (!SERVICE_KEYS.includes(r.service_type)) return;
+            state.services[r.service_type].push({
+              date: r.service_date || "",
+              odo: r.odo,
+              notes: r.notes || ""
+            });
+          });
+        }
+
+      } catch (err) {
+        console.error("Unexpected Supabase error", err);
+      }
+
+      renderUnit();
+      renderLastUpdated();
+      SERVICE_KEYS.forEach(key => renderServiceHistory(key));
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // Unit form
+      const unitForm = document.getElementById("unit-form");
+      unitForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (isLocked) {
+          alert("Unlock editing with the admin PIN to change unit information.");
+          return;
+        }
+
+        state.unit.unitId = document.getElementById("unit-id-field").value.trim() || UNIT_SLUG;
+        state.unit.year = document.getElementById("unit-year").value.trim();
+        state.unit.make = document.getElementById("unit-make").value.trim();
+        state.unit.model = document.getElementById("unit-model").value.trim();
+        state.unit.serial = document.getElementById("unit-serial").value.trim();
+
+        touchLastUpdated();
+        renderUnit();
+        renderLastUpdated();
+
+        const payload = {
+          unit_slug: UNIT_SLUG,
+          unit_id: state.unit.unitId,
+          year: state.unit.year,
+          make: state.unit.make,
+          model: state.unit.model,
+          serial: state.unit.serial,
+          last_updated: state.lastUpdated
+        };
+
+        const { error } = await supabaseClient
+          .from("units")
+          .upsert(payload, { onConflict: "unit_slug" });
+
+        if (error) {
+          console.error("Supabase unit save error", error);
+          alert("Error saving unit info to server: " + error.message);
+        } else {
+          alert("Unit information saved.");
+        }
+      });
+
+      // Service sections: hook up forms and history divs
+      document.querySelectorAll(".service-section").forEach(section => {
+        const key = section.dataset.key;
+        const form = section.querySelector(".service-form");
+        const historyDiv = section.querySelector(".service-history");
+        serviceSections[key] = { form, historyDiv };
+
+        if (form) {
+          form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            if (isLocked) {
+              alert("Unlock editing with the admin PIN to add service records.");
+              return;
+            }
+            const dateInput = form.querySelector(".service-date");
+            const odoInput = form.querySelector(".service-odo");
+            const notesInput = form.querySelector(".service-notes");
+
+            const date = dateInput.value;
+            const odoRaw = odoInput.value;
+            const notes = notesInput.value.trim();
+
+            if (!date && !notes && !odoRaw) {
+              alert("Please enter at least a date or notes.");
+              return;
+            }
+
+            const recordForState = {
+              date: date || "",
+              odo: odoRaw ? parseInt(odoRaw, 10) : null,
+              notes
+            };
+
+            const recordForDb = {
+              unit_slug: UNIT_SLUG,
+              service_type: key,
+              service_date: date || null,
+              odo: odoRaw ? parseInt(odoRaw, 10) : null,
+              notes
+            };
+
+            const { error } = await supabaseClient
+              .from("service_records")
+              .insert(recordForDb);
+
+            if (error) {
+              console.error("Supabase insert error", error);
+              alert("Error saving service record to server: " + error.message);
+              return;
+            }
+
+            state.services[key].push(recordForState);
+            touchLastUpdated();
+            renderLastUpdated();
+
+            // Try to update last_updated on the unit (it's ok if unit row doesn't exist yet)
+            const { error: unitUpdateError } = await supabaseClient
+              .from("units")
+              .update({ last_updated: state.lastUpdated })
+              .eq("unit_slug", UNIT_SLUG);
+
+            if (unitUpdateError) {
+              console.error("Error updating unit last_updated", unitUpdateError);
+            }
+
+            dateInput.value = "";
+            odoInput.value = "";
+            notesInput.value = "";
+
+            renderServiceHistory(key);
+          });
+        }
+
+        renderServiceHistory(key);
+      });
+
+      // Lock/unlock button
+      document.getElementById("unlock-btn").addEventListener("click", () => {
+        if (isLocked) {
+          openPinModal();
+        } else {
+          isLocked = true;
+          updateLockState();
+        }
+      });
+
+      // PIN modal events
+      const pinCancel = document.getElementById("pin-cancel");
+      const pinSubmit = document.getElementById("pin-submit");
+      const pinInput = document.getElementById("pin-input");
+
+      if (pinCancel) {
+        pinCancel.addEventListener("click", () => {
+          closePinModal();
+        });
+      }
+      if (pinSubmit) {
+        pinSubmit.addEventListener("click", () => {
+          submitPin();
+        });
+      }
+      if (pinInput) {
+        pinInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            submitPin();
+          } else if (e.key === "Escape") {
+            e.preventDefault();
+            closePinModal();
+          }
+        });
+      }
+
+      // Close modal with Esc globally
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && pinModalOpen) {
+          e.preventDefault();
+          closePinModal();
+        }
+      });
+
+      // Print
+      document.getElementById("print-btn").addEventListener("click", () => {
+        window.print();
+      });
+
+      // Default dates
+      const today = new Date().toISOString().slice(0, 10);
+      document.querySelectorAll(".service-date").forEach(input => {
+        if (!input.value) input.value = today;
+      });
+
+      // Start locked
+      updateLockState();
+
+      // Finally: load data from Supabase
+      loadFromSupabase();
+    });
+  </script>
+</body>
+</html>
